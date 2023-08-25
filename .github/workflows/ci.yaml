@@ -21,11 +21,11 @@ jobs:
         with:
           go-version-file: go.mod
       - run: make ci-test
-      - uses: codecov/codecov-action@v3.1.1
-        with:
-          token: ${{ secrets.CODECOV_UPLOAD_TOKEN }}
-          file: ./.test_coverage.txt
-          fail_ci_if_error: false
+      # - uses: codecov/codecov-action@v3.1.1
+      #   with:
+      #     token: ${{ secrets.CODECOV_UPLOAD_TOKEN }}
+      #     file: ./.test_coverage.txt
+      #     fail_ci_if_error: false
 
   helm-chart-test:
     name: Helm chart test

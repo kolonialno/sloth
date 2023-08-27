@@ -52,7 +52,7 @@ func NewGenerateCommand(app *kingpin.Application) Command {
 	cmd.Flag("fs-include", "Filter regex to include matched discovered SLO file paths, everything else will be ignored. Exclude has preference (used with directory based input/output).").Short('n').StringVar(&c.slosIncludeRegex)
 
 	cmd.Flag("extra-labels", "Extra labels that will be added to all the generated Prometheus rules ('key=value' form, can be repeated).").Short('l').StringMapVar(&c.extraLabels)
-	cmd.Flag("id-labels", "Id labels that used as filters for generated recording rules ('key=value' form, can be repeated).").Short('d').StringMapVar(&c.idLabels)
+	cmd.Flag("id-labels", "Id labels that used as filters for generated recording rules. These will also be added as extra labels ('key=value' form, can be repeated).").Short('d').StringMapVar(&c.idLabels)
 	cmd.Flag("disable-recordings", "Disables recording rules generation.").BoolVar(&c.disableRecordings)
 	cmd.Flag("disable-alerts", "Disables alert rules generation.").BoolVar(&c.disableAlerts)
 	cmd.Flag("sli-plugins-path", "The path to SLI plugins (can be repeated), if not set it disable plugins support.").Short('p').StringsVar(&c.sliPluginsPaths)
@@ -94,6 +94,11 @@ func (g generateCommand) Run(ctx context.Context, config RootConfig) error {
 		if ia == oa {
 			return fmt.Errorf("input and output can't be the same directory: %s", ia)
 		}
+	}
+
+	// Make sure id labels are set in extra labels as well
+	for key, value := range g.idLabels {
+		g.extraLabels[key] = value
 	}
 
 	// SLO period.

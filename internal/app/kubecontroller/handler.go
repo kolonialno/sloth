@@ -42,6 +42,7 @@ type HandlerConfig struct {
 	Repository       Repository
 	KubeStatusStorer KubeStatusStorer
 	ExtraLabels      map[string]string
+	IDLabels         map[string]string
 	// IgnoreHandleBefore makes the handles of objects with a success state and no spec change,
 	// be ignored if the last success is less than this setting.
 	// Be aware that this setting should be less than the controller resync interval.
@@ -66,6 +67,10 @@ func (c *HandlerConfig) defaults() error {
 		c.ExtraLabels = map[string]string{}
 	}
 
+	if c.IDLabels == nil {
+		c.IDLabels = map[string]string{}
+	}
+
 	if c.Repository == nil {
 		return fmt.Errorf("repository is required")
 	}
@@ -88,6 +93,7 @@ type handler struct {
 	repository         Repository
 	kubeStatusStorer   KubeStatusStorer
 	extraLabels        map[string]string
+	IDLabels           map[string]string
 	ignoreHandleBefore time.Duration
 	logger             log.Logger
 }
@@ -103,6 +109,7 @@ func NewHandler(config HandlerConfig) (controller.Handler, error) {
 		repository:         config.Repository,
 		kubeStatusStorer:   config.KubeStatusStorer,
 		extraLabels:        config.ExtraLabels,
+		IDLabels:           config.IDLabels,
 		ignoreHandleBefore: config.IgnoreHandleBefore,
 		logger:             config.Logger,
 	}, nil
@@ -152,6 +159,7 @@ func (h handler) handlePrometheusServiceLevelV1(ctx context.Context, psl *slothv
 			Spec:    fmt.Sprintf("%s/%s", slothv1.SchemeGroupVersion.Group, slothv1.SchemeGroupVersion.Version),
 		},
 		ExtraLabels: h.extraLabels,
+		IDLabels:    h.IDLabels,
 		SLOGroup:    model.SLOGroup,
 	}
 	resp, err := h.generator.Generate(ctx, req)

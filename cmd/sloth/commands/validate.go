@@ -32,7 +32,7 @@ type validateCommand struct {
 
 // NewValidateCommand returns the validate command.
 func NewValidateCommand(app *kingpin.Application) Command {
-	c := &validateCommand{extraLabels: map[string]string{}}
+	c := &validateCommand{extraLabels: map[string]string{}, idLabels: map[string]string{}}
 	cmd := app.Command("validate", "Validates the SLO manifests and generation of Prometheus SLOs.")
 	cmd.Flag("input", "SLO spec discovery path, will discover recursively all YAML files.").Short('i').Required().StringVar(&c.slosInput)
 	cmd.Flag("fs-exclude", "Filter regex to ignore matched discovered SLO file paths.").Short('e').StringVar(&c.slosExcludeRegex)

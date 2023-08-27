@@ -96,7 +96,7 @@ type Request struct {
 	Info info.Info
 	// ExtraLabels are the extra labels added to the SLOs on execution time.
 	ExtraLabels map[string]string
-	// ExtraLabels are the extra labels added to the SLOs on execution time.
+	// IDLabels are the extra labels added to the SLOs recording rules on execution time.
 	IDLabels map[string]string
 	// SLOGroup are the SLOs group that will be used to generate the SLO results and Prom rules.
 	SLOGroup prometheus.SLOGroup

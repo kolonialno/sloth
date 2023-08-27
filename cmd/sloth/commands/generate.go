@@ -443,7 +443,7 @@ func (g generator) generateRules(ctx context.Context, info info.Info, slos prome
 
 	result, err := controller.Generate(ctx, generate.Request{
 		ExtraLabels: g.extraLabels,
-		IdLabels:    g.idLabels,
+		IDLabels:    g.idLabels,
 		Info:        info,
 		SLOGroup:    slos,
 	})

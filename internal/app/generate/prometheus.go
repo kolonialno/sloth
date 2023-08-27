@@ -97,7 +97,7 @@ type Request struct {
 	// ExtraLabels are the extra labels added to the SLOs on execution time.
 	ExtraLabels map[string]string
 	// ExtraLabels are the extra labels added to the SLOs on execution time.
-	IdLabels map[string]string
+	IDLabels map[string]string
 	// SLOGroup are the SLOs group that will be used to generate the SLO results and Prom rules.
 	SLOGroup prometheus.SLOGroup
 }
@@ -123,7 +123,7 @@ func (s Service) Generate(ctx context.Context, r Request) (*Response, error) {
 	for _, slo := range r.SLOGroup.SLOs {
 		// Add extra labels.
 		slo.Labels = mergeLabels(slo.Labels, r.ExtraLabels)
-		slo.IdLabels = r.IdLabels
+		slo.IDLabels = r.IDLabels
 
 		// Generate SLO result.
 		result, err := s.generateSLO(ctx, r.Info, slo)

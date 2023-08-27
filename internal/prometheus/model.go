@@ -47,7 +47,7 @@ type SLO struct {
 	TimeWindow      time.Duration     `validate:"required"`
 	Objective       float64           `validate:"gt=0,lte=100"`
 	Labels          map[string]string `validate:"dive,keys,prom_label_key,endkeys,required,prom_label_value"`
-	IdLabels        map[string]string `validate:"dive,keys,prom_label_key,endkeys,required,prom_label_value"`
+	IDLabels        map[string]string `validate:"dive,keys,prom_label_key,endkeys,required,prom_label_value"`
 	PageAlertMeta   AlertMeta
 	TicketAlertMeta AlertMeta
 }
@@ -73,7 +73,7 @@ func (s SLO) GetSLOIDPromLabels() map[string]string {
 		sloIDLabelName:      s.ID,
 		sloNameLabelName:    s.Name,
 		sloServiceLabelName: s.Service,
-	}, s.IdLabels)
+	}, s.IDLabels)
 }
 
 var modelSpecValidate = func() *validator.Validate {

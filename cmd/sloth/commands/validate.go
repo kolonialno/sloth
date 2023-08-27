@@ -24,6 +24,7 @@ type validateCommand struct {
 	slosExcludeRegex     string
 	slosIncludeRegex     string
 	extraLabels          map[string]string
+	idLabels             map[string]string
 	sliPluginsPaths      []string
 	sloPeriodWindowsPath string
 	sloPeriod            string
@@ -37,6 +38,7 @@ func NewValidateCommand(app *kingpin.Application) Command {
 	cmd.Flag("fs-exclude", "Filter regex to ignore matched discovered SLO file paths.").Short('e').StringVar(&c.slosExcludeRegex)
 	cmd.Flag("fs-include", "Filter regex to include matched discovered SLO file paths, everything else will be ignored. Exclude has preference.").Short('n').StringVar(&c.slosIncludeRegex)
 	cmd.Flag("extra-labels", "Extra labels that will be added to all the generated Prometheus rules ('key=value' form, can be repeated).").Short('l').StringMapVar(&c.extraLabels)
+	cmd.Flag("id-labels", "Id labels that used as filters for generated recording rules ('key=value' form, can be repeated).").Short('d').StringMapVar(&c.idLabels)
 	cmd.Flag("sli-plugins-path", "The path to SLI plugins (can be repeated), if not set it disable plugins support.").Short('p').StringsVar(&c.sliPluginsPaths)
 	cmd.Flag("slo-period-windows-path", "The directory path to custom SLO period windows catalog (replaces default ones).").StringVar(&c.sloPeriodWindowsPath)
 	cmd.Flag("default-slo-period", "The default SLO period windows to be used for the SLOs.").Default("30d").StringVar(&c.sloPeriod)
@@ -129,6 +131,7 @@ func (v validateCommand) Run(ctx context.Context, config RootConfig) error {
 			logger:      log.Noop,
 			windowsRepo: windowsRepo,
 			extraLabels: v.extraLabels,
+			idLabels:    v.idLabels,
 		}
 
 		// Prepare file validation result and start validation result for every SLO in the file.

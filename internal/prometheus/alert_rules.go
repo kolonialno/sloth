@@ -101,7 +101,7 @@ func defaultSLOAlertGenerator(slo SLO, sloAlert AlertMeta, quick, slow alert.MWM
 		Alert:       sloAlert.Name,
 		Expr:        expr.String(),
 		Annotations: mergeLabels(extraAnnotations, sloAlert.Annotations),
-		Labels:      mergeLabels(extraLabels, sloAlert.Labels),
+		Labels:      mergeLabels(extraLabels, sloAlert.Labels, slo.IDLabels),
 	}, nil
 }
 

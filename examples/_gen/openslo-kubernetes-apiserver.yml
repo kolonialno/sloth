@@ -140,10 +140,10 @@ groups:
       sloth_slo: requests-availability-openslo-0
       sloth_window: 3d
   - record: slo:sli_error:ratio_rate30d
-    expr: |
-      sum_over_time(slo:sli_error:ratio_rate5m{sloth_id="k8s-apiserver-requests-availability-openslo-0", sloth_service="k8s-apiserver", sloth_slo="requests-availability-openslo-0"}[30d])
-      / ignoring (sloth_window)
-      count_over_time(slo:sli_error:ratio_rate5m{sloth_id="k8s-apiserver-requests-availability-openslo-0", sloth_service="k8s-apiserver", sloth_slo="requests-availability-openslo-0"}[30d])
+    expr: |-
+      sum_over_time(sum(slo:sli_error:ratio_rate5m{sloth_id="k8s-apiserver-requests-availability-openslo-0", sloth_service="k8s-apiserver", sloth_slo="requests-availability-openslo-0"})[30d:])
+      /
+      count_over_time(sum(slo:sli_error:ratio_rate5m{sloth_id="k8s-apiserver-requests-availability-openslo-0", sloth_service="k8s-apiserver", sloth_slo="requests-availability-openslo-0"})[30d:])
     labels:
       cmd: examplesgen.sh
       sloth_id: k8s-apiserver-requests-availability-openslo-0
@@ -354,10 +354,10 @@ groups:
       sloth_slo: requests-latency-openslo-0
       sloth_window: 3d
   - record: slo:sli_error:ratio_rate30d
-    expr: |
-      sum_over_time(slo:sli_error:ratio_rate5m{sloth_id="k8s-apiserver-requests-latency-openslo-0", sloth_service="k8s-apiserver", sloth_slo="requests-latency-openslo-0"}[30d])
-      / ignoring (sloth_window)
-      count_over_time(slo:sli_error:ratio_rate5m{sloth_id="k8s-apiserver-requests-latency-openslo-0", sloth_service="k8s-apiserver", sloth_slo="requests-latency-openslo-0"}[30d])
+    expr: |-
+      sum_over_time(sum(slo:sli_error:ratio_rate5m{sloth_id="k8s-apiserver-requests-latency-openslo-0", sloth_service="k8s-apiserver", sloth_slo="requests-latency-openslo-0"})[30d:])
+      /
+      count_over_time(sum(slo:sli_error:ratio_rate5m{sloth_id="k8s-apiserver-requests-latency-openslo-0", sloth_service="k8s-apiserver", sloth_slo="requests-latency-openslo-0"})[30d:])
     labels:
       cmd: examplesgen.sh
       sloth_id: k8s-apiserver-requests-latency-openslo-0
@@ -562,10 +562,10 @@ groups:
       sloth_slo: requests-latency-openslo-1
       sloth_window: 3d
   - record: slo:sli_error:ratio_rate30d
-    expr: |
-      sum_over_time(slo:sli_error:ratio_rate5m{sloth_id="k8s-apiserver-requests-latency-openslo-1", sloth_service="k8s-apiserver", sloth_slo="requests-latency-openslo-1"}[30d])
-      / ignoring (sloth_window)
-      count_over_time(slo:sli_error:ratio_rate5m{sloth_id="k8s-apiserver-requests-latency-openslo-1", sloth_service="k8s-apiserver", sloth_slo="requests-latency-openslo-1"}[30d])
+    expr: |-
+      sum_over_time(sum(slo:sli_error:ratio_rate5m{sloth_id="k8s-apiserver-requests-latency-openslo-1", sloth_service="k8s-apiserver", sloth_slo="requests-latency-openslo-1"})[30d:])
+      /
+      count_over_time(sum(slo:sli_error:ratio_rate5m{sloth_id="k8s-apiserver-requests-latency-openslo-1", sloth_service="k8s-apiserver", sloth_slo="requests-latency-openslo-1"})[30d:])
     labels:
       cmd: examplesgen.sh
       sloth_id: k8s-apiserver-requests-latency-openslo-1

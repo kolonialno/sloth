@@ -117,7 +117,7 @@ spec:
         sloth_slo: good-wifi-client-satisfaction
         sloth_window: 3d
       record: slo:sli_error:ratio_rate3d
-    - expr: |-
+    - expr: |
         sum_over_time(sum(slo:sli_error:ratio_rate5m{sloth_id="home-wifi-good-wifi-client-satisfaction", sloth_service="home-wifi", sloth_slo="good-wifi-client-satisfaction"})[30d:])
         /
         count_over_time(sum(slo:sli_error:ratio_rate5m{sloth_id="home-wifi-good-wifi-client-satisfaction", sloth_service="home-wifi", sloth_slo="good-wifi-client-satisfaction"})[30d:])
@@ -358,7 +358,7 @@ spec:
         sloth_slo: risk-wifi-client-satisfaction
         sloth_window: 3d
       record: slo:sli_error:ratio_rate3d
-    - expr: |-
+    - expr: |
         sum_over_time(sum(slo:sli_error:ratio_rate5m{sloth_id="home-wifi-risk-wifi-client-satisfaction", sloth_service="home-wifi", sloth_slo="risk-wifi-client-satisfaction"})[30d:])
         /
         count_over_time(sum(slo:sli_error:ratio_rate5m{sloth_id="home-wifi-risk-wifi-client-satisfaction", sloth_service="home-wifi", sloth_slo="risk-wifi-client-satisfaction"})[30d:])

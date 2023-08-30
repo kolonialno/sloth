@@ -155,7 +155,8 @@ func optimizedSLIRecordGenerator(slo SLO, window, shortWindow time.Duration) (*r
 	// - https://math.stackexchange.com/questions/95909/why-is-an-average-of-an-average-usually-incorrect
 	const sliExprTplFmt = `sum_over_time(sum({{.metric}}{{.filter}})[{{.window}}:])
 /
-count_over_time(sum({{.metric}}{{.filter}})[{{.window}}:])`
+count_over_time(sum({{.metric}}{{.filter}})[{{.window}}:])
+`
 
 	if window == shortWindow {
 		return nil, fmt.Errorf("can't optimize using the same shortwindow as the window to optimize")

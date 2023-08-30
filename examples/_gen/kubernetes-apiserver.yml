@@ -105,7 +105,7 @@ groups:
       sloth_slo: requests-availability
       sloth_window: 3d
   - record: slo:sli_error:ratio_rate30d
-    expr: |-
+    expr: |
       sum_over_time(sum(slo:sli_error:ratio_rate5m{sloth_id="k8s-apiserver-requests-availability", sloth_service="k8s-apiserver", sloth_slo="requests-availability"})[30d:])
       /
       count_over_time(sum(slo:sli_error:ratio_rate5m{sloth_id="k8s-apiserver-requests-availability", sloth_service="k8s-apiserver", sloth_slo="requests-availability"})[30d:])
@@ -385,7 +385,7 @@ groups:
       sloth_slo: requests-latency
       sloth_window: 3d
   - record: slo:sli_error:ratio_rate30d
-    expr: |-
+    expr: |
       sum_over_time(sum(slo:sli_error:ratio_rate5m{sloth_id="k8s-apiserver-requests-latency", sloth_service="k8s-apiserver", sloth_slo="requests-latency"})[30d:])
       /
       count_over_time(sum(slo:sli_error:ratio_rate5m{sloth_id="k8s-apiserver-requests-latency", sloth_service="k8s-apiserver", sloth_slo="requests-latency"})[30d:])

@@ -383,7 +383,7 @@ func getBasePromOpPrometheusRule(slothVersion string) *monitoringv1.PrometheusRu
 						},
 						{
 							Record: "slo:sli_error:ratio_rate30d",
-              Expr:   intstr.FromString("sum_over_time(sum(slo:sli_error:ratio_rate5m{sloth_id=\"svc01-slo02\", sloth_service=\"svc01\", sloth_slo=\"slo02\"})[30d:])\n/\ncount_over_time(sum(slo:sli_error:ratio_rate5m{sloth_id=\"svc01-slo02\", sloth_service=\"svc01\", sloth_slo=\"slo02\"})[30d:])\n"),
+							Expr:   intstr.FromString("sum_over_time(sum(slo:sli_error:ratio_rate5m{sloth_id=\"svc01-slo02\", sloth_service=\"svc01\", sloth_slo=\"slo02\"})[30d:])\n/\ncount_over_time(sum(slo:sli_error:ratio_rate5m{sloth_id=\"svc01-slo02\", sloth_service=\"svc01\", sloth_slo=\"slo02\"})[30d:])\n"),
 							Labels: map[string]string{
 								"globalk1":      "globalv1",
 								"sloth_id":      "svc01-slo02",

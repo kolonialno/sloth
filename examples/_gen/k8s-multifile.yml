@@ -114,10 +114,9 @@ spec:
         sloth_window: 3d
         tier: "2"
       record: slo:sli_error:ratio_rate3d
-    - expr: |
-        sum_over_time(sum(slo:sli_error:ratio_rate5m{sloth_id="myservice-requests-availability", sloth_service="myservice", sloth_slo="requests-availability"})[30d:])
-        /
-        count_over_time(sum(slo:sli_error:ratio_rate5m{sloth_id="myservice-requests-availability", sloth_service="myservice", sloth_slo="requests-availability"})[30d:])
+    - expr: aa sum_over_time(sum(slo:sli_error:ratio_rate5m{sloth_id="myservice-requests-availability",
+        sloth_service="myservice", sloth_slo="requests-availability"})[30d:]) / count_over_time(sum(slo:sli_error:ratio_rate5m{sloth_id="myservice-requests-availability",
+        sloth_service="myservice", sloth_slo="requests-availability"})[30d:])
       labels:
         cmd: examplesgen.sh
         owner: myteam
@@ -373,10 +372,9 @@ spec:
         sloth_window: 3d
         tier: "1"
       record: slo:sli_error:ratio_rate3d
-    - expr: |
-        sum_over_time(sum(slo:sli_error:ratio_rate5m{sloth_id="myservice2-requests-availability", sloth_service="myservice2", sloth_slo="requests-availability"})[30d:])
-        /
-        count_over_time(sum(slo:sli_error:ratio_rate5m{sloth_id="myservice2-requests-availability", sloth_service="myservice2", sloth_slo="requests-availability"})[30d:])
+    - expr: aa sum_over_time(sum(slo:sli_error:ratio_rate5m{sloth_id="myservice2-requests-availability",
+        sloth_service="myservice2", sloth_slo="requests-availability"})[30d:]) / count_over_time(sum(slo:sli_error:ratio_rate5m{sloth_id="myservice2-requests-availability",
+        sloth_service="myservice2", sloth_slo="requests-availability"})[30d:])
       labels:
         cmd: examplesgen.sh
         owner: myteam2

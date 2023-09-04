@@ -267,18 +267,18 @@ func validateOneSLI(sl validator.StructLevel) {
 }
 
 func validateDenominatorCorrected(sl validator.StructLevel) {
-	denominator_corrected, ok := sl.Current().Interface().(SLIDenominatorCorrectedEvents)
+	denominatorCorrected, ok := sl.Current().Interface().(SLIDenominatorCorrectedEvents)
 	if !ok {
-		sl.ReportError(denominator_corrected, "", "SLIDenominatorCorrectedEvents", "not_denominator_corrected", "")
+		sl.ReportError(denominatorCorrected, "", "SLIDenominatorCorrectedEvents", "not_denominator_corrected", "")
 		return
 	}
 
-	if denominator_corrected.ErrorQuery != nil && denominator_corrected.SuccessQuery != nil {
-		sl.ReportError(denominator_corrected, "", "", "query_repeated", "")
+	if denominatorCorrected.ErrorQuery != nil && denominatorCorrected.SuccessQuery != nil {
+		sl.ReportError(denominatorCorrected, "", "", "query_repeated", "")
 	}
 
-	if denominator_corrected.ErrorQuery == nil && denominator_corrected.SuccessQuery == nil {
-		sl.ReportError(denominator_corrected, "", "", "no_query_supplied", "")
+	if denominatorCorrected.ErrorQuery == nil && denominatorCorrected.SuccessQuery == nil {
+		sl.ReportError(denominatorCorrected, "", "", "no_query_supplied", "")
 	}
 }
 

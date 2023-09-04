@@ -265,6 +265,14 @@ spec:
         sloth_service: svc01
         sloth_slo: slo1
       record: slo:numerator_correction:ratio3d
+    - expr: (sum(rate(http_request_duration_seconds_count{job="myservice"}[30d])))/(sum(rate(http_request_duration_seconds_count{job="myservice"}[30d])))
+      labels:
+        global01k1: global01v1
+        global02k1: global02v1
+        sloth_id: svc01-slo1
+        sloth_service: svc01
+        sloth_slo: slo1
+      record: slo:numerator_correction:ratio30d
   - name: sloth-slo-alerts-svc01-slo1
     rules:
     - alert: myServiceAlert
@@ -571,3 +579,11 @@ spec:
         sloth_service: svc01
         sloth_slo: slo02
       record: slo:numerator_correction:ratio3d
+    - expr: (sum(rate(http_request_duration_seconds_count{job="myservice"}[30d])))/(sum(rate(http_request_duration_seconds_count{job="myservice"}[30d])))
+      labels:
+        global01k1: global01v1
+        global03k1: global03v1
+        sloth_id: svc01-slo02
+        sloth_service: svc01
+        sloth_slo: slo02
+      record: slo:numerator_correction:ratio30d

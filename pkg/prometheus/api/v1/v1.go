@@ -103,6 +103,8 @@ type SLI struct {
 	Events *SLIEvents `yaml:"events,omitempty"`
 	// Plugin is the pluggable SLI type.
 	Plugin *SLIPlugin `yaml:"plugin,omitempty"`
+	// DenominatorCorrected is the denominator corrected events SLI type.
+	DenominatorCorrected *SLIDenominatorCorrected `yaml:"denominator_corrected,omitempty"`
 }
 
 // SLIRaw is a error ratio SLI already calculated. Normally this will be used when the SLI
@@ -131,6 +133,29 @@ type SLIPlugin struct {
 	ID string `yaml:"id"`
 	// Options are the options used for the plugin.
 	Options map[string]string `yaml:"options"`
+}
+
+// SLIDenominatorCorrected is an SLI that is calculated as the division of bad events and total events, or
+// 1 - (good / total) events giving a ratio SLI. This SLI is corrected based on the total number of events
+// for the last 30d, meaning that low-event hours will have less impact on burn-rate than high-event hours.
+// In other words, ratios with low denominators will have less impact.
+type SLIDenominatorCorrected struct {
+	// ErrorQuery is a Prometheus query that will get the number/count of events
+	// that we consider that are bad for the SLO (e.g "http 5xx", "latency > 250ms"...).
+	// Requires the usage of `{{.window}}` template variable. ErrorQuery and
+	// SuccessQuery are mutually exclusive.
+	ErrorQuery *string `yaml:"errorQuery,omitempty"`
+
+	// SuccessQuery is a Prometheus query that will get the number/count of events
+	// that we consider that are good for the SLO (e.g "http not 5xx", "latency < 250ms"...).
+	// Requires the usage of `{{.window}}` template variable. ErrorQuery and
+	// SuccessQuery are mutually exclusive.
+	SuccessQuery *string `yaml:"successQuery,omitempty"`
+
+	// TotalQuery is a Prometheus query that will get the total number/count of events
+	// for the SLO (e.g "all http requests"...).
+	// Requires the usage of `{{.window}}` template variable.
+	TotalQuery string `yaml:"totalQuery"`
 }
 
 // Alerting wraps all the configuration required by the SLO alerts.

@@ -94,6 +94,14 @@ func (y YAMLSpecLoader) mapSpecToModel(ctx context.Context, spec prometheusv1.Sp
 			}
 		}
 
+		if specSLO.SLI.DenominatorCorrected != nil {
+			slo.SLI.DenominatorCorrected = &SLIDenominatorCorrectedEvents{
+				ErrorQuery:   specSLO.SLI.DenominatorCorrected.ErrorQuery,
+				SuccessQuery: specSLO.SLI.DenominatorCorrected.SuccessQuery,
+				TotalQuery:   specSLO.SLI.DenominatorCorrected.TotalQuery,
+			}
+		}
+
 		if specSLO.SLI.Plugin != nil {
 			plugin, err := y.pluginsRepo.GetSLIPlugin(ctx, specSLO.SLI.Plugin.ID)
 			if err != nil {

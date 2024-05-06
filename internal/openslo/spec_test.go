@@ -90,7 +90,8 @@ spec:
         total:
           metricSource:
 	        type: prometheus
-	        query: latency_west_c7{code="ALL",instance="localhost:3000",job="prometheus",service="globacount"}
+	        spec:
+		      query: latency_west_c7{code="ALL",instance="localhost:3000",job="prometheus",service="globacount"}
   objectives:
   - target: 0.98
     displayName: painful
@@ -128,7 +129,8 @@ spec:
         total:
           metricSource:
 	        type: prometheus
-	        query: latency_west_c7{code="ALL",instance="localhost:3000",job="prometheus",service="globacount"}
+	        spec:
+		      query: latency_west_c7{code="ALL",instance="localhost:3000",job="prometheus",service="globacount"}
   objectives:
   - displayName: painful
     target: 0.98
@@ -160,7 +162,8 @@ spec:
         total:
           metricSource:
 	        type: prometheus
-	        query: latency_west_c7{code="ALL",instance="localhost:3000",job="prometheus",service="globacount"}
+	        spec:
+	          query: latency_west_c7{code="ALL",instance="localhost:3000",job="prometheus",service="globacount"}
   objectives:
   - displayName: painful
     target: 0.98
@@ -230,7 +233,8 @@ spec:
         total:
           metricSource:
             type: prometheus
-            query: sum(rate(http_request_duration_seconds_count{job="myservice"}[{{.window}}]))
+            spec:
+              query: sum(rate(http_request_duration_seconds_count{job="myservice"}[{{.window}}]))
   objectives:
   - displayName: painful
     target: 0.98

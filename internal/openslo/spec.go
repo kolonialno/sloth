@@ -27,8 +27,6 @@ func NewYAMLSpecLoader(windowPeriod time.Duration) YAMLSpecLoader {
 }
 
 var (
-	// specTypeV1AlphaRegexKind = regexp.MustCompile(`(?m)^kind: +['"]?SLO['"]? *$`)
-	// specTypeV1AlphaRegexAPIVersion = regexp.MustCompile(`(?m)^apiVersion: +['"]?openslo\/v1alpha['"]? *$`)
 	specTypeV1RegexKind       = regexp.MustCompile(`(?m)^kind: +['"]?SLO['"]? *$`)
 	specTypeV1RegexAPIVersion = regexp.MustCompile(`(?m)^apiVersion: +['"]?openslo\/v1['"]? *$`)
 )

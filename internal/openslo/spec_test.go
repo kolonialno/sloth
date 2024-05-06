@@ -229,12 +229,12 @@ spec:
           metricSource:
             type: prometheus
             spec:
-              query: sum(rate(http_request_duration_seconds_count{job="myservice",code!~"(5..|429)"}[{{.window}}]))
+              query: latency_west_c7{code="GOOD",instance="localhost:3000",job="prometheus",service="globacount"}
         total:
           metricSource:
             type: prometheus
             spec:
-              query: sum(rate(http_request_duration_seconds_count{job="myservice"}[{{.window}}]))
+              query: latency_west_c7{code="ALL",instance="localhost:3000",job="prometheus",service="globacount"}
   objectives:
   - displayName: painful
     target: 0.98
@@ -242,7 +242,7 @@ spec:
     target: 0.999
   service: my-test-service
   timeWindow:
-  - duration: 30d
+  - duration: 28d
     isRolling: true
 `,
 			expModel: &prometheus.SLOGroup{SLOs: []prometheus.SLO{

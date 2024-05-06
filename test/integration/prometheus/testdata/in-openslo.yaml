@@ -1,4 +1,4 @@
-apiVersion: openslo/v1alpha
+apiVersion: openslo/v1
 kind: SLO
 metadata:
   name: slo1
@@ -7,17 +7,25 @@ spec:
   service: svc01
   description: "this is SLO1."
   budgetingMethod: Occurrences
-  objectives:
-    - ratioMetrics:
+  indicator:
+    metadata:
+      name: sli1
+      displayName: Integration test SLI1
+    spec:
+      ratioMetric:
+        counter: true
         good:
-          source: prometheus
-          queryType: promql
-          query: sum(rate(http_request_duration_seconds_count{job="myservice",code!~"(5..|429)"}[{{.window}}]))
+          metricSource:
+            type: prometheus
+            spec:
+              query: sum(rate(http_request_duration_seconds_count{job="myservice",code!~"(5..|429)"}[{{.window}}]))
         total:
-          source: prometheus
-          queryType: promql
-          query: sum(rate(http_request_duration_seconds_count{job="myservice"}[{{.window}}]))
-      target: 0.999
-  timeWindows:
-    - count: 30
-      unit: Day
+          metricSource:
+            type: prometheus
+            spec:
+              query: sum(rate(http_request_duration_seconds_count{job="myservice"}[{{.window}}]))
+  objectives:
+    - target: 0.999
+  timeWindow:
+    - duration: 30d
+      isRolling: true

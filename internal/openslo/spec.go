@@ -27,10 +27,8 @@ func NewYAMLSpecLoader(windowPeriod time.Duration) YAMLSpecLoader {
 }
 
 var (
-	specTypeV1AlphaRegexKind       = regexp.MustCompile(`(?m)^kind: +['"]?SLO['"]? *$`)
-	specTypeV1AlphaRegexAPIVersion = regexp.MustCompile(`(?m)^apiVersion: +['"]?openslo\/v1alpha['"]? *$`)
-	specTypeV1RegexKind            = regexp.MustCompile(`(?m)^kind: +['"]?SLO['"]? *$`)
-	specTypeV1RegexAPIVersion      = regexp.MustCompile(`(?m)^apiVersion: +['"]?openslo\/v1['"]? *$`)
+	specTypeV1RegexKind       = regexp.MustCompile(`(?m)^kind: +['"]?SLO['"]? *$`)
+	specTypeV1RegexAPIVersion = regexp.MustCompile(`(?m)^apiVersion: +['"]?openslo\/v1['"]? *$`)
 )
 
 func (y YAMLSpecLoader) IsSpecType(ctx context.Context, data []byte) bool {
@@ -99,12 +97,12 @@ func (YAMLSpecLoader) validateTimeWindow(spec openslov1.SLO) error {
 		return fmt.Errorf("only 1 time window is supported")
 	}
 
-	if spec.Spec.TimeWindow[0].IsRolling == false {
+	if !spec.Spec.TimeWindow[0].IsRolling {
 		return fmt.Errorf("must be rolling window")
 	}
 
 	if !durationRegex.MatchString(spec.Spec.TimeWindow[0].Duration) {
-		return fmt.Errorf("the duration string is not confirming.")
+		return fmt.Errorf("the duration string is not confirming")
 	}
 
 	t := spec.Spec.TimeWindow[0]
@@ -243,7 +241,7 @@ func (y YAMLSpecLoader) getSLOs(spec openslov1.SLO) ([]prometheus.SLO, error) {
 			Description:     spec.Spec.Description,
 			TimeWindow:      timeWindow,
 			SLI:             *sli,
-			Objective:       *&slo.Target * 100, // OpenSLO uses ratios, we use percents.
+			Objective:       slo.Target * 100, // OpenSLO uses ratios, we use percents.
 			PageAlertMeta:   prometheus.AlertMeta{Disable: true},
 			TicketAlertMeta: prometheus.AlertMeta{Disable: true},
 		})

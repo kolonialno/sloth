@@ -40,7 +40,7 @@ spec:
 
 		"Spec with invalid version should fail.": {
 			specYaml: `
-apiVersion: openslo/v99alpha
+apiVersion: openslo/v99
 kind: SLO
 metadata:
   displayName: Ratio
@@ -52,7 +52,7 @@ spec:
 
 		"Spec without SLOs should fail.": {
 			specYaml: `
-apiVersion: openslo/v1alpha
+apiVersion: openslo/v1
 kind: SLO
 metadata:
   displayName: Ratio
@@ -67,7 +67,7 @@ spec:
 
 		"Spec with wrong time window units should fail.": {
 			specYaml: `
-apiVersion: openslo/v1alpha
+apiVersion: openslo/v1
 kind: SLO
 metadata:
   displayName: Ratio
@@ -75,31 +75,37 @@ metadata:
 spec:
   budgetingMethod: Timeslices
   description: A great description of a ratio based SLO
+  indicator:
+    metadata:
+      name: ratio
+      displayName: Ration
+    spec:
+      ratioMetric:
+        counter: true
+        good:
+          metricSource:
+            type: prometheus
+            spec:
+              query: latency_west_c7{code="GOOD",instance="localhost:3000",job="prometheus",service="globacount"}
+        total:
+          metricSource:
+	        type: prometheus
+	        query: latency_west_c7{code="ALL",instance="localhost:3000",job="prometheus",service="globacount"}
   objectives:
-  - ratioMetrics:
-      good:
-        source: prometheus
-        queryType: promql
-        query: latency_west_c7{code="GOOD",instance="localhost:3000",job="prometheus",service="globacount"}
-      total:
-        source: prometheus
-        queryType: promql
-        query: latency_west_c7{code="ALL",instance="localhost:3000",job="prometheus",service="globacount"}
+  - target: 0.98
     displayName: painful
     target: 0.98
-    value: 1
   service: my-test-service
-  timeWindows:
-  - count: 720
+  timeWindow:
+  - duration: 72i
     isRolling: true
-    unit: Hour
 `,
 			expErr: true,
 		},
 
 		"Spec without ratio SLI should fail.": {
 			specYaml: `
-apiVersion: openslo/v1alpha
+apiVersion: openslo/v1
 kind: SLO
 metadata:
   displayName: Ratio
@@ -107,23 +113,36 @@ metadata:
 spec:
   budgetingMethod: Timeslices
   description: A great description of a ratio based SLO
-  objectives:
+  indicator:
+    metadata:
+      name: ratio
+      displayName: Ration
+    spec:
+      ratioMetric:
+        counter: true
+        good:
+          metricSource:
+            type: prometheus
+            spec:
+              query: latency_west_c7{code="GOOD",instance="localhost:3000",job="prometheus",service="globacount"}
+        total:
+          metricSource:
+	        type: prometheus
+	        query: latency_west_c7{code="ALL",instance="localhost:3000",job="prometheus",service="globacount"}
   objectives:
   - displayName: painful
     target: 0.98
-    value: 1
   service: my-test-service
-  timeWindows:
-  - count: 30
+  timeWindow:
+  - duration: 30d
     isRolling: true
-    unit: Day
 `,
 			expErr: true,
 		},
 
 		"Spec without ratio good SLI should fail.": {
 			specYaml: `
-apiVersion: openslo/v1alpha
+apiVersion: openslo/v1
 kind: SLO
 metadata:
   displayName: Ratio
@@ -131,28 +150,31 @@ metadata:
 spec:
   budgetingMethod: Timeslices
   description: A great description of a ratio based SLO
+  indicator:
+    metadata:
+      name: ratio
+      displayName: Ration
+    spec:
+      ratioMetric:
+        counter: true
+        total:
+          metricSource:
+	        type: prometheus
+	        query: latency_west_c7{code="ALL",instance="localhost:3000",job="prometheus",service="globacount"}
   objectives:
-  objectives:
-  - ratioMetrics:
-      total:
-        source: prometheus
-        queryType: promql
-        query: latency_west_c7{code="ALL",instance="localhost:3000",job="prometheus",service="globacount"}
-    displayName: painful
+  - displayName: painful
     target: 0.98
-    value: 1
   service: my-test-service
-  timeWindows:
-  - count: 30
+  timeWindow:
+  - duration: 30d
     isRolling: true
-    unit: Day
 `,
 			expErr: true,
 		},
 
 		"Spec without ratio total SLI should fail.": {
 			specYaml: `
-apiVersion: openslo/v1alpha
+apiVersion: openslo/v1
 kind: SLO
 metadata:
   displayName: Ratio
@@ -160,28 +182,32 @@ metadata:
 spec:
   budgetingMethod: Timeslices
   description: A great description of a ratio based SLO
+  indicator:
+    metadata:
+      name: ratio
+      displayName: Ration
+    spec:
+      ratioMetric:
+        counter: true
+        good:
+          metricSource:
+            type: prometheus
+            spec:
+              query: latency_west_c7{code="GOOD",instance="localhost:3000",job="prometheus",service="globacount"}
   objectives:
-  objectives:
-  - ratioMetrics:
-      good:
-        source: prometheus
-        queryType: promql
-        query: latency_west_c7{code="GOOD",instance="localhost:3000",job="prometheus",service="globacount"}
-    displayName: painful
+  - displayName: painful
     target: 0.98
-    value: 1
   service: my-test-service
-  timeWindows:
-  - count: 30
+  timeWindow:
+  - duration: 30d
     isRolling: true
-    unit: Day
 `,
 			expErr: true,
 		},
 
 		"Correct spec should return the models correctly.": {
 			specYaml: `
-apiVersion: openslo/v1alpha
+apiVersion: openslo/v1
 kind: SLO
 metadata:
   displayName: Ratio
@@ -189,34 +215,31 @@ metadata:
 spec:
   budgetingMethod: Timeslices
   description: A great description of a ratio based SLO
+  indicator:
+    metadata:
+      name: sli1
+      displayName: Integration test SLI1
+    spec:
+      ratioMetric:
+        counter: true
+        good:
+          metricSource:
+            type: prometheus
+            spec:
+              query: sum(rate(http_request_duration_seconds_count{job="myservice",code!~"(5..|429)"}[{{.window}}]))
+        total:
+          metricSource:
+            type: prometheus
+            query: sum(rate(http_request_duration_seconds_count{job="myservice"}[{{.window}}]))
   objectives:
-  - ratioMetrics:
-      good:
-        source: prometheus
-        queryType: promql
-        query: latency_west_c7{code="GOOD",instance="localhost:3000",job="prometheus",service="globacount"}
-      total:
-        source: prometheus
-        queryType: promql
-        query: latency_west_c7{code="ALL",instance="localhost:3000",job="prometheus",service="globacount"}
-    displayName: painful
+  - displayName: painful
     target: 0.98
-  - ratioMetrics:
-      good:
-        source: prometheus
-        queryType: promql
-        query: latency_west_c7{code="GOOD",instance="localhost:3000",job="prometheus",service="globacount"}
-      total:
-        source: prometheus
-        queryType: promql
-        query: latency_west_c7{code="ALL",instance="localhost:3000",job="prometheus",service="globacount"}
-    displayName: painful
+  - displayName: painful
     target: 0.999
   service: my-test-service
-  timeWindows:
-  - count: 28
+  timeWindow:
+  - duration: 30d
     isRolling: true
-    unit: Day
 `,
 			expModel: &prometheus.SLOGroup{SLOs: []prometheus.SLO{
 				{
@@ -306,7 +329,7 @@ func TestYAMLIsSpecType(t *testing.T) {
 
 		"An incorrect spec api version type shouldn't match": {
 			specYaml: `
-apiVersion: openslo/v1
+apiVersion: openslo/v1balloon
 kind: SLO
 `,
 			exp: false,
@@ -314,7 +337,7 @@ kind: SLO
 
 		"An incorrect spec kind type shouldn't match": {
 			specYaml: `
-apiVersion: openslo/v1alpha
+apiVersion: openslo/v1
 kind: service
 `,
 			exp: false,
@@ -322,7 +345,7 @@ kind: service
 
 		"An correct spec type should match": {
 			specYaml: `
-apiVersion: "openslo/v1alpha"
+apiVersion: "openslo/v1"
 kind: "SLO"
 `,
 			exp: true,
@@ -330,7 +353,7 @@ kind: "SLO"
 
 		"An correct spec type should match (no quotes)": {
 			specYaml: `
-apiVersion: openslo/v1alpha
+apiVersion: openslo/v1
 kind: SLO
 `,
 			exp: true,
@@ -338,7 +361,7 @@ kind: SLO
 
 		"An correct spec type should match (single quotes)": {
 			specYaml: `
-apiVersion: 'openslo/v1alpha'
+apiVersion: 'openslo/v1'
 kind: 'SLO'
 `,
 			exp: true,
@@ -346,7 +369,7 @@ kind: 'SLO'
 
 		"An correct spec type should match (multiple spaces)": {
 			specYaml: `
-apiVersion:          openslo/v1alpha     
+apiVersion:          openslo/v1     
 kind:              SLO     
 `,
 			exp: true,

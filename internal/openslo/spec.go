@@ -16,8 +16,8 @@ import (
 )
 
 var (
-	MultiDimensionSliEnabledAnnotation := "multi-dimensional-sli.openslo.com/enabled"
-	MultiDimensionSliSecondDimensionAnnotation := "multi-dimensional-sli.openslo.com/second-dimension"
+	MultiDimensionSliEnabledAnnotation         = "multi-dimensional-sli.openslo.com/enabled"
+	MultiDimensionSliSecondDimensionAnnotation = "multi-dimensional-sli.openslo.com/second-dimension"
 )
 
 type YAMLSpecLoader struct {
@@ -73,14 +73,13 @@ func (y YAMLSpecLoader) LoadSpec(ctx context.Context, data []byte) (*prometheus.
 		return nil, fmt.Errorf("could not map to model: %w", err)
 	}
 
-	mdse, ok := s.Metadata.Annotations[MultiDimensionSliEnabledAnnotation]
-	mdsd, okay := s.Metadata.Annotations[MultiDimensionSliSecondDimensionAnnotation]
-	if ok {
-		if !okay {
-			return nil, fmt.Errorf()
-		}
-	}
-
+	// mdse, ok := s.Metadata.Annotations[MultiDimensionSliEnabledAnnotation]
+	// mdsd, okay := s.Metadata.Annotations[MultiDimensionSliSecondDimensionAnnotation]
+	// if ok {
+	// 	if !okay {
+	// 		return nil, fmt.Errorf()
+	// 	}
+	// }
 
 	return m, nil
 }
@@ -128,9 +127,9 @@ func (YAMLSpecLoader) validateTimeWindow(spec openslov1.SLO) error {
 	return nil
 }
 
-var multiSliTpl = template.Must(template.New("").Parse(`
-label_join({{ .query }}, "sloth_id", "-", "sloth_id", "{{ .second_label_indentifier }}")
-`))
+// var multiSliTpl = template.Must(template.New("").Parse(`
+// label_join({{ .query }}, "sloth_id", "-", "sloth_id", "{{ .second_label_indentifier }}")
+// `))
 
 var errorRatioRawQueryTpl = template.Must(template.New("").Parse(`
   1 - (

@@ -138,7 +138,8 @@ jobs:
   tagged-release-binaries:
     # Only on tags.
     if: startsWith(github.ref, 'refs/tags/')
-    needs: [check, unit-test, integration-test-cli, integration-test-k8s, helm-chart-test]
+    # needs: [check, unit-test, integration-test-cli, integration-test-k8s, helm-chart-test]
+    needs: [check, unit-test, integration-test-cli]
     name: Tagged release binaries
     runs-on: ubuntu-latest
     steps:

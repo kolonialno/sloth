@@ -15,6 +15,11 @@ import (
 	"github.com/slok/sloth/internal/prometheus"
 )
 
+var (
+	MultiDimensionSliEnabledAnnotation := "multi-dimensional-sli.openslo.com/enabled"
+	MultiDimensionSliSecondDimensionAnnotation := "multi-dimensional-sli.openslo.com/second-dimension"
+)
+
 type YAMLSpecLoader struct {
 	windowPeriod time.Duration
 }
@@ -68,6 +73,15 @@ func (y YAMLSpecLoader) LoadSpec(ctx context.Context, data []byte) (*prometheus.
 		return nil, fmt.Errorf("could not map to model: %w", err)
 	}
 
+	mdse, ok := s.Metadata.Annotations[MultiDimensionSliEnabledAnnotation]
+	mdsd, okay := s.Metadata.Annotations[MultiDimensionSliSecondDimensionAnnotation]
+	if ok {
+		if !okay {
+			return nil, fmt.Errorf()
+		}
+	}
+
+
 	return m, nil
 }
 
@@ -113,6 +127,10 @@ func (YAMLSpecLoader) validateTimeWindow(spec openslov1.SLO) error {
 
 	return nil
 }
+
+var multiSliTpl = template.Must(template.New("").Parse(`
+label_join({{ .query }}, "sloth_id", "-", "sloth_id", "{{ .second_label_indentifier }}")
+`))
 
 var errorRatioRawQueryTpl = template.Must(template.New("").Parse(`
   1 - (
@@ -186,6 +204,12 @@ func (y YAMLSpecLoader) getSLI(spec openslov1.SLOSpec, slo openslov1.Objective) 
 		if err != nil {
 			return nil, fmt.Errorf("could not execute mapping SLI template: %w", err)
 		}
+
+		// var c bytes.Buffer
+		// err = multiSliTpl.Execute(&c, map[string]string{"query": b.String(), "second_label_identifier": "idk"})
+		// if err != nil {
+		// 	return nil, fmt.Errorf("could not execute mapping SLI template: %w", err)
+		// }
 
 		return &prometheus.SLI{Raw: &prometheus.SLIRaw{
 			ErrorRatioQuery: b.String(),

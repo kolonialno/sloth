@@ -55,6 +55,8 @@ type SLO struct {
 	Objective       float64           `validate:"gt=0,lte=100"`
 	Labels          map[string]string `validate:"dive,keys,prom_label_key,endkeys,required,prom_label_value"`
 	IDLabels        map[string]string `validate:"dive,keys,prom_label_key,endkeys,required,prom_label_value"`
+	MultiDimensionSliEnabled bool
+	MultiDimensionSliSecondDimension string
 	PageAlertMeta   AlertMeta
 	TicketAlertMeta AlertMeta
 }

@@ -243,6 +243,25 @@ count_over_time(sum({{.metric}}{{.filter}})[{{.window}}:])
 		return nil, fmt.Errorf("could not render SLI expression template: %w", err)
 	}
 
+	if slo.MultiDimensionSliEnabled {
+		var c bytes.Buffer
+		err := multiSliTpl.Execute(&c, map[string]string{ "query": b.String(), "second_label_identifier": slo.MultiDimensionSliSecondDimension})
+		if err != nil {
+			return nil, fmt.Errorf("could not execute multi-dimension-sli template: %w", err)
+		}
+		return &rulefmt.Rule{
+			Record: slo.GetSLIErrorMetric(window),
+			Expr:   c.String(),
+			Labels: mergeLabels(
+				slo.GetSLOIDPromLabels(),
+				map[string]string{
+					sloWindowLabelName: strWindow,
+				},
+				slo.Labels,
+			),
+		}, nil
+	}
+
 	return &rulefmt.Rule{
 		Record: slo.GetSLIErrorMetric(window),
 		Expr:   b.String(),
@@ -257,6 +276,8 @@ count_over_time(sum({{.metric}}{{.filter}})[{{.window}}:])
 }
 
 type metadataRecordingRulesGenerator bool
+
+var multiSliTpl = template.Must(template.New("").Parse(`label_join({{ .query }}, 'sloth_id', '-', 'sloth_id', '{{ .second_label_identifier }}')`))
 
 // MetadataRecordingRulesGenerator knows how to generate the metadata prometheus recording rules
 // from an SLO.
@@ -306,60 +327,151 @@ func (m metadataRecordingRulesGenerator) GenerateMetadataRecordingRules(ctx cont
 		return nil, fmt.Errorf("could not render period burn rate prometheus metadata recording rule expression: %w", err)
 	}
 
-	rules := []rulefmt.Rule{
-		// SLO Objective.
-		{
-			Record: metricSLOObjectiveRatio,
-			Expr:   fmt.Sprintf(`vector(%g)`, sloObjectiveRatio),
-			Labels: labels,
-		},
+	rules := []rulefmt.Rule{}
 
-		// Error budget.
-		{
-			Record: metricSLOErrorBudgetRatio,
-			Expr:   fmt.Sprintf(`vector(1-%g)`, sloObjectiveRatio),
-			Labels: labels,
-		},
+	if slo.MultiDimensionSliEnabled {
+		var sloObjectiveExpr, errorBudgetExpr, totalPeriodExpr, currBurnRateExpr, totalPeriodBurnRateExpr, totalErrorBudgetRemainingExpr, infoExpr bytes.Buffer
 
-		// Total period.
-		{
-			Record: metricSLOTimePeriodDays,
-			Expr:   fmt.Sprintf(`vector(%g)`, slo.TimeWindow.Hours()/24),
-			Labels: labels,
-		},
+		err = multiSliTpl.Execute(&sloObjectiveExpr, map[string]string{ "query": fmt.Sprintf(`vector(%g)`, sloObjectiveRatio), "second_label_identifier": slo.MultiDimensionSliSecondDimension})
+		if err != nil {
+			return nil, fmt.Errorf("could not execute multi-dimension-sli template: %w", err)
+		}
+		err = multiSliTpl.Execute(&errorBudgetExpr, map[string]string{ "query": fmt.Sprintf(`vector(1-%g)`, sloObjectiveRatio), "second_label_identifier": slo.MultiDimensionSliSecondDimension})
+		if err != nil {
+			return nil, fmt.Errorf("could not execute multi-dimension-sli template: %w", err)
+		}
+		err = multiSliTpl.Execute(&totalPeriodExpr, map[string]string{ "query": fmt.Sprintf(`vector(%g)`, slo.TimeWindow.Hours()/24), "second_label_identifier": slo.MultiDimensionSliSecondDimension})
+		if err != nil {
+			return nil, fmt.Errorf("could not execute multi-dimension-sli template: %w", err)
+		}
+		err = multiSliTpl.Execute(&currBurnRateExpr, map[string]string{ "query": currentBurnRateExpr.String(), "second_label_identifier": slo.MultiDimensionSliSecondDimension})
+		if err != nil {
+			return nil, fmt.Errorf("could not execute multi-dimension-sli template: %w", err)
+		}
+		err = multiSliTpl.Execute(&totalPeriodBurnRateExpr, map[string]string{ "query": periodBurnRateExpr.String(), "second_label_identifier": slo.MultiDimensionSliSecondDimension})
+		if err != nil {
+			return nil, fmt.Errorf("could not execute multi-dimension-sli template: %w", err)
+		}
+		err = multiSliTpl.Execute(&totalErrorBudgetRemainingExpr, map[string]string{ "query": fmt.Sprintf(`1 - %s%s`, metricSLOPeriodBurnRateRatio, sloFilter), "second_label_identifier": slo.MultiDimensionSliSecondDimension})
+		if err != nil {
+			return nil, fmt.Errorf("could not execute multi-dimension-sli template: %w", err)
+		}
+		err = multiSliTpl.Execute(&infoExpr, map[string]string{ "query": `vector(1)`, "second_label_identifier": slo.MultiDimensionSliSecondDimension})
+		if err != nil {
+			return nil, fmt.Errorf("could not execute multi-dimension-sli template: %w", err)
+		}
 
-		// Current burning speed.
-		{
-			Record: metricSLOCurrentBurnRateRatio,
-			Expr:   currentBurnRateExpr.String(),
-			Labels: labels,
-		},
+		rules = []rulefmt.Rule{
+			// SLO Objective.
+			{
+				Record: metricSLOObjectiveRatio,
+				Expr:   sloObjectiveExpr.String(),
+				Labels: labels,
+			},
 
-		// Total period burn rate.
-		{
-			Record: metricSLOPeriodBurnRateRatio,
-			Expr:   periodBurnRateExpr.String(),
-			Labels: labels,
-		},
+			// Error budget.
+			{
+				Record: metricSLOErrorBudgetRatio,
+				Expr:   errorBudgetExpr.String(),
+				Labels: labels,
+			},
 
-		// Total Error budget remaining period.
-		{
-			Record: metricSLOPeriodErrorBudgetRemainingRatio,
-			Expr:   fmt.Sprintf(`1 - %s%s`, metricSLOPeriodBurnRateRatio, sloFilter),
-			Labels: labels,
-		},
+			// Total period.
+			{
+				Record: metricSLOTimePeriodDays,
+				Expr:   totalPeriodExpr.String(),
+				Labels: labels,
+			},
 
-		// Info.
-		{
-			Record: metricSLOInfo,
-			Expr:   `vector(1)`,
-			Labels: mergeLabels(labels, map[string]string{
-				sloVersionLabelName:   info.Version,
-				sloModeLabelName:      string(info.Mode),
-				sloSpecLabelName:      info.Spec,
-				sloObjectiveLabelName: strconv.FormatFloat(slo.Objective, 'f', -1, 64),
-			}),
-		},
+			// Current burning speed.
+			{
+				Record: metricSLOCurrentBurnRateRatio,
+				Expr:   currBurnRateExpr.String(),
+				Labels: labels,
+			},
+
+			// Total period burn rate.
+			{
+				Record: metricSLOPeriodBurnRateRatio,
+				Expr:   totalPeriodBurnRateExpr.String(),
+				Labels: labels,
+			},
+
+			// Total Error budget remaining period.
+			{
+				Record: metricSLOPeriodErrorBudgetRemainingRatio,
+				Expr:   totalErrorBudgetRemainingExpr.String(),
+				Labels: labels,
+			},
+
+			// Info.
+			{
+				Record: metricSLOInfo,
+				Expr:   infoExpr.String(),
+				Labels: mergeLabels(labels, map[string]string{
+					sloVersionLabelName:   info.Version,
+					sloModeLabelName:      string(info.Mode),
+					sloSpecLabelName:      info.Spec,
+					sloObjectiveLabelName: strconv.FormatFloat(slo.Objective, 'f', -1, 64),
+				}),
+			},
+		}
+	} else {
+		rules = []rulefmt.Rule{
+			// SLO Objective.
+			{
+				Record: metricSLOObjectiveRatio,
+				Expr:   fmt.Sprintf(`vector(%g)`, sloObjectiveRatio),
+				Labels: labels,
+			},
+
+			// Error budget.
+			{
+				Record: metricSLOErrorBudgetRatio,
+				Expr:   fmt.Sprintf(`vector(1-%g)`, sloObjectiveRatio),
+				Labels: labels,
+			},
+
+			// Total period.
+			{
+				Record: metricSLOTimePeriodDays,
+				Expr:   fmt.Sprintf(`vector(%g)`, slo.TimeWindow.Hours()/24),
+				Labels: labels,
+			},
+
+			// Current burning speed.
+			{
+				Record: metricSLOCurrentBurnRateRatio,
+				Expr:   currentBurnRateExpr.String(),
+				Labels: labels,
+			},
+
+			// Total period burn rate.
+			{
+				Record: metricSLOPeriodBurnRateRatio,
+				Expr:   periodBurnRateExpr.String(),
+				Labels: labels,
+			},
+
+			// Total Error budget remaining period.
+			{
+				Record: metricSLOPeriodErrorBudgetRemainingRatio,
+				Expr:   fmt.Sprintf(`1 - %s%s`, metricSLOPeriodBurnRateRatio, sloFilter),
+				Labels: labels,
+			},
+
+			// Info.
+			{
+				Record: metricSLOInfo,
+				Expr:   `vector(1)`,
+				Labels: mergeLabels(labels, map[string]string{
+					sloVersionLabelName:   info.Version,
+					sloModeLabelName:      string(info.Mode),
+					sloSpecLabelName:      info.Spec,
+					sloObjectiveLabelName: strconv.FormatFloat(slo.Objective, 'f', -1, 64),
+				}),
+			},
+		}
 	}
 
 	if slo.SLI.DenominatorCorrected != nil {

@@ -186,6 +186,10 @@ jobs:
         with:
             fetch-depth: 0
 
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
       - name: Dev Dry Run Release
         if: ${{ github.event_name == 'pull_request' }}
         uses: goreleaser/goreleaser-action@v5

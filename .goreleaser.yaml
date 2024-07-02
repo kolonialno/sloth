@@ -24,7 +24,7 @@ builds:
     flags:
       - -buildvcs=false
     ldflags:
-      - -s -w -extldflags '-static' -X github.slok/sloth/internal/info.Version={{.Version}}
+      - -s -w -extldflags '-static' -X github.com/slok/sloth/internal/info.Version={{.Version}}
     goarch:
       - amd64
       - arm64

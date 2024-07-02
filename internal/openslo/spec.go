@@ -21,7 +21,7 @@ var (
 )
 
 var (
-	multiDimensionSliEnabled         = true
+	multiDimensionSliEnabled         = false
 	multiDimensionSliSecondDimension = ""
 )
 

@@ -180,6 +180,7 @@ jobs:
       - name: Dev Dry Run Release
         if: ${{ github.event_name == 'pull_request' }}
         uses: goreleaser/goreleaser-action@v5
+        needs: [unit-test]
         with:
           distribution: goreleaser
           version: ~> v2
@@ -189,6 +190,7 @@ jobs:
 
       - name: Production Release
         if: ${{ github.event_name != 'pull_request' }}
+        needs: [unit-test]
         uses: goreleaser/goreleaser-action@v5
         with:
           distribution: goreleaser

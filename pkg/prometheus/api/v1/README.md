@@ -6,7 +6,7 @@
 import "github.com/slok/sloth/pkg/prometheus/api/v1"
 ```
 
-### Package v1
+Package v1
 
 Example YAML spec with 2 SLOs:
 
@@ -66,23 +66,27 @@ slos:
 ## Index
 
 - [Constants](<#constants>)
-- [type Alert](<#type-alert>)
-- [type Alerting](<#type-alerting>)
-- [type SLI](<#type-sli>)
-- [type SLIEvents](<#type-slievents>)
-- [type SLIPlugin](<#type-sliplugin>)
-- [type SLIRaw](<#type-sliraw>)
-- [type SLO](<#type-slo>)
-- [type Spec](<#type-spec>)
+- [type Alert](<#Alert>)
+- [type Alerting](<#Alerting>)
+- [type SLI](<#SLI>)
+- [type SLIDenominatorCorrected](<#SLIDenominatorCorrected>)
+- [type SLIEvents](<#SLIEvents>)
+- [type SLIPlugin](<#SLIPlugin>)
+- [type SLIRaw](<#SLIRaw>)
+- [type SLO](<#SLO>)
+- [type Spec](<#Spec>)
 
 
 ## Constants
+
+<a name="Version"></a>
 
 ```go
 const Version = "prometheus/v1"
 ```
 
-## type Alert
+<a name="Alert"></a>
+## type [Alert](<https://github.com/thisisibrahimd/sloth/blob/main/pkg/prometheus/api/v1/v1.go#L177-L186>)
 
 Alert configures specific SLO alert.
 
@@ -99,7 +103,8 @@ type Alert struct {
 }
 ```
 
-## type Alerting
+<a name="Alerting"></a>
+## type [Alerting](<https://github.com/thisisibrahimd/sloth/blob/main/pkg/prometheus/api/v1/v1.go#L162-L174>)
 
 Alerting wraps all the configuration required by the SLO alerts.
 
@@ -119,7 +124,8 @@ type Alerting struct {
 }
 ```
 
-## type SLI
+<a name="SLI"></a>
+## type [SLI](<https://github.com/thisisibrahimd/sloth/blob/main/pkg/prometheus/api/v1/v1.go#L99-L108>)
 
 SLI will tell what is good or bad for the SLO. All SLIs will be get based on time windows, that's why Sloth needs the queries to use \`\{\{.window\}\}\` template variable.
 
@@ -133,10 +139,39 @@ type SLI struct {
     Events *SLIEvents `yaml:"events,omitempty"`
     // Plugin is the pluggable SLI type.
     Plugin *SLIPlugin `yaml:"plugin,omitempty"`
+    // DenominatorCorrected is the denominator corrected events SLI type.
+    DenominatorCorrected *SLIDenominatorCorrected `yaml:"denominator_corrected,omitempty"`
 }
 ```
 
-## type SLIEvents
+<a name="SLIDenominatorCorrected"></a>
+## type [SLIDenominatorCorrected](<https://github.com/thisisibrahimd/sloth/blob/main/pkg/prometheus/api/v1/v1.go#L142-L159>)
+
+SLIDenominatorCorrected is an SLI that is calculated as the division of bad events and total events, or 1 \- \(good / total\) events giving a ratio SLI. This SLI is corrected based on the total number of events for the last 30d, meaning that low\-event hours will have less impact on burn\-rate than high\-event hours. In other words, ratios with low denominators will have less impact.
+
+```go
+type SLIDenominatorCorrected struct {
+    // ErrorQuery is a Prometheus query that will get the number/count of events
+    // that we consider that are bad for the SLO (e.g "http 5xx", "latency > 250ms"...).
+    // Requires the usage of `{{.window}}` template variable. ErrorQuery and
+    // SuccessQuery are mutually exclusive.
+    ErrorQuery *string `yaml:"errorQuery,omitempty"`
+
+    // SuccessQuery is a Prometheus query that will get the number/count of events
+    // that we consider that are good for the SLO (e.g "http not 5xx", "latency < 250ms"...).
+    // Requires the usage of `{{.window}}` template variable. ErrorQuery and
+    // SuccessQuery are mutually exclusive.
+    SuccessQuery *string `yaml:"successQuery,omitempty"`
+
+    // TotalQuery is a Prometheus query that will get the total number/count of events
+    // for the SLO (e.g "all http requests"...).
+    // Requires the usage of `{{.window}}` template variable.
+    TotalQuery string `yaml:"totalQuery"`
+}
+```
+
+<a name="SLIEvents"></a>
+## type [SLIEvents](<https://github.com/thisisibrahimd/sloth/blob/main/pkg/prometheus/api/v1/v1.go#L119-L128>)
 
 SLIEvents is an SLI that is calculated as the division of bad events and total events, giving a ratio SLI. Normally this is the most common ratio type.
 
@@ -153,7 +188,8 @@ type SLIEvents struct {
 }
 ```
 
-## type SLIPlugin
+<a name="SLIPlugin"></a>
+## type [SLIPlugin](<https://github.com/thisisibrahimd/sloth/blob/main/pkg/prometheus/api/v1/v1.go#L131-L136>)
 
 SLIPlugin will use the SLI returned by the SLI plugin selected along with the options.
 
@@ -166,7 +202,8 @@ type SLIPlugin struct {
 }
 ```
 
-## type SLIRaw
+<a name="SLIRaw"></a>
+## type [SLIRaw](<https://github.com/thisisibrahimd/sloth/blob/main/pkg/prometheus/api/v1/v1.go#L112-L115>)
 
 SLIRaw is a error ratio SLI already calculated. Normally this will be used when the SLI is already calculated by other recording rule, system...
 
@@ -177,7 +214,8 @@ type SLIRaw struct {
 }
 ```
 
-## type SLO
+<a name="SLO"></a>
+## type [SLO](<https://github.com/thisisibrahimd/sloth/blob/main/pkg/prometheus/api/v1/v1.go#L76-L92>)
 
 SLO is the configuration/declaration of the service level objective of a service.
 
@@ -201,7 +239,8 @@ type SLO struct {
 }
 ```
 
-## type Spec
+<a name="Spec"></a>
+## type [Spec](<https://github.com/thisisibrahimd/sloth/blob/main/pkg/prometheus/api/v1/v1.go#L62-L72>)
 
 Spec represents the root type of the SLOs declaration specification.
 
@@ -218,7 +257,5 @@ type Spec struct {
     SLOs []SLO `yaml:"slos,omitempty"`
 }
 ```
-
-
 
 Generated by [gomarkdoc](<https://github.com/princjef/gomarkdoc>)

@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 	"text/template"
 	"time"
-	"strings"
 
 	openslov1 "github.com/OpenSLO/oslo/pkg/manifest/v1"
-	"gopkg.in/yaml.v2"
 	"github.com/slok/sloth/internal/prometheus"
+	"gopkg.in/yaml.v2"
 )
 
 var (
@@ -139,7 +139,7 @@ func (YAMLSpecLoader) validateTimeWindow(spec openslov1.SLO) error {
 	return nil
 }
 
-var multiSliTpl = template.Must(template.New("").Parse(`label_join(max_over_time({{ .query }}), 'sloth_id', '-', 'sloth_id', '{{ .second_label_identifier }}')`))
+var multiSliTpl = template.Must(template.New("").Parse(`label_join(label_join(max_over_time({{ .query }}), 'sloth_slo', '-', 'sloth_slo', '{{ .second_label_identifier }}'), 'sloth_id', '-', 'sloth_service', 'sloth_slo'`))
 
 var errorRatioRawQueryTpl = template.Must(template.New("").Parse(`
   1 - (
@@ -172,7 +172,6 @@ func (y YAMLSpecLoader) getSLI(spec openslov1.SLOSpec, slo openslov1.Objective) 
 	if sli.Spec.RatioMetric != nil && sli.Spec.ThresholdMetric != nil {
 		return nil, fmt.Errorf("missing ratioMetric and/or thresholdMetric. One and only one must be supplied")
 	}
-
 
 	mdse, ok := sli.Metadata.Annotations[MultiDimensionSliEnabledAnnotation]
 	if ok && (strings.ToLower(mdse) == "true") {
@@ -222,7 +221,7 @@ func (y YAMLSpecLoader) getSLI(spec openslov1.SLOSpec, slo openslov1.Objective) 
 		if err != nil {
 			return nil, fmt.Errorf("could not execute mapping SLI template: %w", err)
 		}
-		
+
 		if multiDimensionSliEnabled {
 			var c bytes.Buffer
 
@@ -234,9 +233,8 @@ func (y YAMLSpecLoader) getSLI(spec openslov1.SLOSpec, slo openslov1.Objective) 
 			return &prometheus.SLI{Raw: &prometheus.SLIRaw{
 				ErrorRatioQuery: c.String(),
 			}}, nil
-			
-		}
 
+		}
 
 		return &prometheus.SLI{Raw: &prometheus.SLIRaw{
 			ErrorRatioQuery: b.String(),
@@ -299,16 +297,16 @@ func (y YAMLSpecLoader) getSLOs(spec openslov1.SLO) ([]prometheus.SLO, error) {
 
 		// TODO(slok): Think about using `slo.Value` insted of idx (`slo.Value` is not mandatory).
 		res = append(res, prometheus.SLO{
-			ID:              fmt.Sprintf("%s-%s-%d", spec.Spec.Service, spec.Metadata.Name, idx),
-			Name:            fmt.Sprintf("%s-%d", spec.Metadata.Name, idx),
-			Service:         spec.Spec.Service,
-			Description:     spec.Spec.Description,
-			TimeWindow:      timeWindow,
-			SLI:             *sli,
-			Objective:       slo.Target * 100, // OpenSLO uses ratios, we use percents.
-			PageAlertMeta:   prometheus.AlertMeta{Disable: true},
-			TicketAlertMeta: prometheus.AlertMeta{Disable: true},
-			MultiDimensionSliEnabled: multiDimensionSliEnabled,
+			ID:                               fmt.Sprintf("%s-%s-%d", spec.Spec.Service, spec.Metadata.Name, idx),
+			Name:                             fmt.Sprintf("%s-%d", spec.Metadata.Name, idx),
+			Service:                          spec.Spec.Service,
+			Description:                      spec.Spec.Description,
+			TimeWindow:                       timeWindow,
+			SLI:                              *sli,
+			Objective:                        slo.Target * 100, // OpenSLO uses ratios, we use percents.
+			PageAlertMeta:                    prometheus.AlertMeta{Disable: true},
+			TicketAlertMeta:                  prometheus.AlertMeta{Disable: true},
+			MultiDimensionSliEnabled:         multiDimensionSliEnabled,
 			MultiDimensionSliSecondDimension: multiDimensionSliSecondDimension,
 		})
 	}

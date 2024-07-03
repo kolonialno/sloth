@@ -243,24 +243,24 @@ count_over_time(sum({{.metric}}{{.filter}})[{{.window}}:])
 		return nil, fmt.Errorf("could not render SLI expression template: %w", err)
 	}
 
-	if slo.MultiDimensionSliEnabled {
-		var c bytes.Buffer
-		err := multiSliTpl.Execute(&c, map[string]string{"query": b.String(), "second_label_identifier": slo.MultiDimensionSliSecondDimension})
-		if err != nil {
-			return nil, fmt.Errorf("could not execute multi-dimension-sli template: %w", err)
-		}
-		return &rulefmt.Rule{
-			Record: slo.GetSLIErrorMetric(window),
-			Expr:   c.String(),
-			Labels: mergeLabels(
-				slo.GetSLOIDPromLabels(),
-				map[string]string{
-					sloWindowLabelName: strWindow,
-				},
-				slo.Labels,
-			),
-		}, nil
-	}
+	// if slo.MultiDimensionSliEnabled {
+	// 	var c bytes.Buffer
+	// 	err := multiSliTpl.Execute(&c, map[string]string{"query": b.String(), "second_label_identifier": slo.MultiDimensionSliSecondDimension})
+	// 	if err != nil {
+	// 		return nil, fmt.Errorf("could not execute multi-dimension-sli template: %w", err)
+	// 	}
+	// 	return &rulefmt.Rule{
+	// 		Record: slo.GetSLIErrorMetric(window),
+	// 		Expr:   c.String(),
+	// 		Labels: mergeLabels(
+	// 			slo.GetSLOIDPromLabels(),
+	// 			map[string]string{
+	// 				sloWindowLabelName: strWindow,
+	// 			},
+	// 			slo.Labels,
+	// 		),
+	// 	}, nil
+	// }
 
 	return &rulefmt.Rule{
 		Record: slo.GetSLIErrorMetric(window),

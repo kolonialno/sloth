@@ -1,0 +1,6 @@
+[tools]
+sloth-thisisibrahimd = "0.14.0-alpha5"
+
+[plugins]
+sloth-thisisibrahimd = 'git@github.com:thisisibrahimd/asdf-sloth'
+

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
-	"strings"
 	"text/template"
 	"time"
 
@@ -15,15 +14,15 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-var (
-	MultiDimensionSliEnabledAnnotation         = "multi-dimensional-sli.openslo.com/enabled"
-	MultiDimensionSliSecondDimensionAnnotation = "multi-dimensional-sli.openslo.com/second-dimension"
-)
+// var (
+// 	MultiDimensionSliEnabledAnnotation         = "multi-dimensional-sli.openslo.com/enabled"
+// 	MultiDimensionSliSecondDimensionAnnotation = "multi-dimensional-sli.openslo.com/second-dimension"
+// )
 
-var (
-	multiDimensionSliEnabled         = false
-	multiDimensionSliSecondDimension = ""
-)
+// var (
+// 	multiDimensionSliEnabled         = false
+// 	multiDimensionSliSecondDimension = ""
+// )
 
 type YAMLSpecLoader struct {
 	windowPeriod time.Duration
@@ -73,20 +72,20 @@ func (y YAMLSpecLoader) LoadSpec(ctx context.Context, data []byte) (*prometheus.
 		return nil, fmt.Errorf("invalid SLO time windows: %w", err)
 	}
 
-	mdse, ok := s.Metadata.Annotations[MultiDimensionSliEnabledAnnotation]
-	if ok {
-		mdseb, err := strconv.ParseBool(mdse)
-		if err != nil {
-			return nil, fmt.Errorf("unable to parse multi dimension sli annotation")
-		}
-		multiDimensionSliEnabled = mdseb
-		mdssd, okay := s.Metadata.Annotations[MultiDimensionSliSecondDimensionAnnotation]
-		if !okay {
-			return nil, fmt.Errorf("second dimension not present for multi-dimensions slis")
-		} else {
-			multiDimensionSliSecondDimension = mdssd
-		}
-	}
+	// mdse, ok := s.Metadata.Annotations[MultiDimensionSliEnabledAnnotation]
+	// if ok {
+	// 	mdseb, err := strconv.ParseBool(mdse)
+	// 	if err != nil {
+	// 		return nil, fmt.Errorf("unable to parse multi dimension sli annotation")
+	// 	}
+	// 	multiDimensionSliEnabled = mdseb
+	// 	mdssd, okay := s.Metadata.Annotations[MultiDimensionSliSecondDimensionAnnotation]
+	// 	if !okay {
+	// 		return nil, fmt.Errorf("second dimension not present for multi-dimensions slis")
+	// 	} else {
+	// 		multiDimensionSliSecondDimension = mdssd
+	// 	}
+	// }
 
 	m, err := y.mapSpecToModel(s)
 	if err != nil {
@@ -139,7 +138,7 @@ func (YAMLSpecLoader) validateTimeWindow(spec openslov1.SLO) error {
 	return nil
 }
 
-var multiSliTpl = template.Must(template.New("").Parse(`label_join(label_join(max_over_time({{ .query }}), 'sloth_slo', '-', 'sloth_slo', '{{ .second_label_identifier }}'), 'sloth_id', '-', 'sloth_service', 'sloth_slo'`))
+// var multiSliTpl = template.Must(template.New("").Parse(`label_join(label_join(max_over_time({{ .query }}), 'sloth_slo', '-', 'sloth_slo', '{{ .second_label_identifier }}'), 'sloth_id', '-', 'sloth_service', 'sloth_slo'`))
 
 var errorRatioRawQueryTpl = template.Must(template.New("").Parse(`
   1 - (
@@ -173,13 +172,13 @@ func (y YAMLSpecLoader) getSLI(spec openslov1.SLOSpec, slo openslov1.Objective) 
 		return nil, fmt.Errorf("missing ratioMetric and/or thresholdMetric. One and only one must be supplied")
 	}
 
-	mdse, ok := sli.Metadata.Annotations[MultiDimensionSliEnabledAnnotation]
-	if ok && (strings.ToLower(mdse) == "true") {
-		_, okay := sli.Metadata.Annotations[MultiDimensionSliSecondDimensionAnnotation]
-		if !okay {
-			return nil, fmt.Errorf("second dimension not present for multi-dimensions slis")
-		}
-	}
+	// mdse, ok := sli.Metadata.Annotations[MultiDimensionSliEnabledAnnotation]
+	// if ok && (strings.ToLower(mdse) == "true") {
+	// 	_, okay := sli.Metadata.Annotations[MultiDimensionSliSecondDimensionAnnotation]
+	// 	if !okay {
+	// 		return nil, fmt.Errorf("second dimension not present for multi-dimensions slis")
+	// 	}
+	// }
 
 	if sli.Spec.RatioMetric != nil {
 		// Ratio Metrics
@@ -222,19 +221,19 @@ func (y YAMLSpecLoader) getSLI(spec openslov1.SLOSpec, slo openslov1.Objective) 
 			return nil, fmt.Errorf("could not execute mapping SLI template: %w", err)
 		}
 
-		if multiDimensionSliEnabled {
-			var c bytes.Buffer
+		// if multiDimensionSliEnabled {
+		// 	var c bytes.Buffer
 
-			err := multiSliTpl.Execute(&c, map[string]string{"query": b.String(), "second_label_identifier": multiDimensionSliSecondDimension})
-			if err != nil {
-				return nil, fmt.Errorf("could not execute multi-dimension-sli template: %w", err)
-			}
+		// 	err := multiSliTpl.Execute(&c, map[string]string{"query": b.String(), "second_label_identifier": multiDimensionSliSecondDimension})
+		// 	if err != nil {
+		// 		return nil, fmt.Errorf("could not execute multi-dimension-sli template: %w", err)
+		// 	}
 
-			return &prometheus.SLI{Raw: &prometheus.SLIRaw{
-				ErrorRatioQuery: c.String(),
-			}}, nil
+		// 	return &prometheus.SLI{Raw: &prometheus.SLIRaw{
+		// 		ErrorRatioQuery: c.String(),
+		// 	}}, nil
 
-		}
+		// }
 
 		return &prometheus.SLI{Raw: &prometheus.SLIRaw{
 			ErrorRatioQuery: b.String(),
@@ -252,18 +251,18 @@ func (y YAMLSpecLoader) getSLI(spec openslov1.SLOSpec, slo openslov1.Objective) 
 		// Ensure this gives you a straight percentage
 		thresholdQuery := threshold.MetricSource.MetricSourceSpec[metricSourceSpecQueryKey]
 
-		if multiDimensionSliEnabled {
-			var c bytes.Buffer
+		// if multiDimensionSliEnabled {
+		// 	var c bytes.Buffer
 
-			err := multiSliTpl.Execute(&c, map[string]string{"query": thresholdQuery, "second_label_identifier": multiDimensionSliSecondDimension})
-			if err != nil {
-				return nil, fmt.Errorf("could not execute multi-dimension-sli template: %w", err)
-			}
+		// 	err := multiSliTpl.Execute(&c, map[string]string{"query": thresholdQuery, "second_label_identifier": multiDimensionSliSecondDimension})
+		// 	if err != nil {
+		// 		return nil, fmt.Errorf("could not execute multi-dimension-sli template: %w", err)
+		// 	}
 
-			return &prometheus.SLI{Raw: &prometheus.SLIRaw{
-				ErrorRatioQuery: c.String(),
-			}}, nil
-		}
+		// 	return &prometheus.SLI{Raw: &prometheus.SLIRaw{
+		// 		ErrorRatioQuery: c.String(),
+		// 	}}, nil
+		// }
 
 		return &prometheus.SLI{Raw: &prometheus.SLIRaw{
 			ErrorRatioQuery: thresholdQuery,
@@ -297,17 +296,17 @@ func (y YAMLSpecLoader) getSLOs(spec openslov1.SLO) ([]prometheus.SLO, error) {
 
 		// TODO(slok): Think about using `slo.Value` insted of idx (`slo.Value` is not mandatory).
 		res = append(res, prometheus.SLO{
-			ID:                               fmt.Sprintf("%s-%s-%d", spec.Spec.Service, spec.Metadata.Name, idx),
-			Name:                             fmt.Sprintf("%s-%d", spec.Metadata.Name, idx),
-			Service:                          spec.Spec.Service,
-			Description:                      spec.Spec.Description,
-			TimeWindow:                       timeWindow,
-			SLI:                              *sli,
-			Objective:                        slo.Target * 100, // OpenSLO uses ratios, we use percents.
-			PageAlertMeta:                    prometheus.AlertMeta{Disable: true},
-			TicketAlertMeta:                  prometheus.AlertMeta{Disable: true},
-			MultiDimensionSliEnabled:         multiDimensionSliEnabled,
-			MultiDimensionSliSecondDimension: multiDimensionSliSecondDimension,
+			ID:              fmt.Sprintf("%s-%s-%d", spec.Spec.Service, spec.Metadata.Name, idx),
+			Name:            fmt.Sprintf("%s-%d", spec.Metadata.Name, idx),
+			Service:         spec.Spec.Service,
+			Description:     spec.Spec.Description,
+			TimeWindow:      timeWindow,
+			SLI:             *sli,
+			Objective:       slo.Target * 100, // OpenSLO uses ratios, we use percents.
+			PageAlertMeta:   prometheus.AlertMeta{Disable: true},
+			TicketAlertMeta: prometheus.AlertMeta{Disable: true},
+			// MultiDimensionSliEnabled:         multiDimensionSliEnabled,
+			// MultiDimensionSliSecondDimension: multiDimensionSliSecondDimension,
 		})
 	}
 

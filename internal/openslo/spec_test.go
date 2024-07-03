@@ -252,8 +252,6 @@ spec:
 					Service:     "my-test-service",
 					Description: "A great description of a ratio based SLO",
 					TimeWindow:  28 * 24 * time.Hour,
-					MultiDimensionSliEnabled: false,
-					MultiDimensionSliSecondDimension: "",
 					SLI: prometheus.SLI{
 						Raw: &prometheus.SLIRaw{
 							ErrorRatioQuery: `
@@ -279,8 +277,6 @@ spec:
 					Service:     "my-test-service",
 					Description: "A great description of a ratio based SLO",
 					TimeWindow:  28 * 24 * time.Hour,
-					MultiDimensionSliEnabled: false,
-					MultiDimensionSliSecondDimension: "",
 					SLI: prometheus.SLI{
 						Raw: &prometheus.SLIRaw{
 							ErrorRatioQuery: `

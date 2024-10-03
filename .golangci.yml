@@ -10,5 +10,4 @@ linters:
     - goimports
     - revive
     - gofmt
-    - depguard
     - godot

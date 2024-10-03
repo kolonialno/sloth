@@ -11,3 +11,11 @@ linters:
     - revive
     - gofmt
     - godot
+
+issues:
+  exclude-rules:
+    # Exclude unused parameter checks from the noop logger for readability
+    - path: internal/log/log.go
+      linters:
+        - revive
+      text: "unused-parameter: parameter '(\\w+)' seems to be unused, .*"

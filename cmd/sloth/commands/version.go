@@ -20,7 +20,7 @@ func NewVersionCommand(app *kingpin.Application) Command {
 }
 
 func (versionCommand) Name() string { return "version" }
-func (versionCommand) Run(ctx context.Context, config RootConfig) error {
-	fmt.Fprintf(config.Stdout, info.Version)
+func (versionCommand) Run(_ context.Context, config RootConfig) error {
+	fmt.Fprint(config.Stdout, info.Version)
 	return nil
 }

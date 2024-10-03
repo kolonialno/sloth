@@ -40,7 +40,7 @@ func optimizedFactorySLIRecordGenerator(slo SLO, window time.Duration, alerts al
 	return factorySLIRecordGenerator(slo, window, alerts)
 }
 
-func (s sliRecordingRulesGenerator) GenerateSLIRecordingRules(ctx context.Context, slo SLO, alerts alert.MWMBAlertGroup) ([]rulefmt.Rule, error) {
+func (s sliRecordingRulesGenerator) GenerateSLIRecordingRules(_ context.Context, slo SLO, alerts alert.MWMBAlertGroup) ([]rulefmt.Rule, error) {
 	// Get the windows we need the recording rules.
 	windows := getAlertGroupWindows(alerts)
 	windows = append(windows, slo.TimeWindow) // Add the total time window as a handy helper.
@@ -77,7 +77,7 @@ func factorySLIRecordGenerator(slo SLO, window time.Duration, alerts alert.MWMBA
 	return nil, fmt.Errorf("invalid SLI type")
 }
 
-func rawSLIRecordGenerator(slo SLO, window time.Duration, alerts alert.MWMBAlertGroup) (*rulefmt.Rule, error) {
+func rawSLIRecordGenerator(slo SLO, window time.Duration, _ alert.MWMBAlertGroup) (*rulefmt.Rule, error) {
 	// Render with our templated data.
 	sliExprTpl := fmt.Sprintf(`(%s)`, slo.SLI.Raw.ErrorRatioQuery)
 	tpl, err := template.New("sliExpr").Option("missingkey=error").Parse(sliExprTpl)
@@ -107,7 +107,7 @@ func rawSLIRecordGenerator(slo SLO, window time.Duration, alerts alert.MWMBAlert
 	}, nil
 }
 
-func eventsSLIRecordGenerator(slo SLO, window time.Duration, alerts alert.MWMBAlertGroup) (*rulefmt.Rule, error) {
+func eventsSLIRecordGenerator(slo SLO, window time.Duration, _ alert.MWMBAlertGroup) (*rulefmt.Rule, error) {
 	const sliExprTplFmt = `(%s)
 /
 (%s)
@@ -143,7 +143,7 @@ func eventsSLIRecordGenerator(slo SLO, window time.Duration, alerts alert.MWMBAl
 	}, nil
 }
 
-func denominatorCorrectedSLIRecordGenerator(slo SLO, window time.Duration, alerts alert.MWMBAlertGroup) (*rulefmt.Rule, error) {
+func denominatorCorrectedSLIRecordGenerator(slo SLO, window time.Duration, _ alert.MWMBAlertGroup) (*rulefmt.Rule, error) {
 	var sliExprTpl string
 
 	if slo.SLI.DenominatorCorrected.ErrorQuery != nil {
@@ -262,7 +262,7 @@ type metadataRecordingRulesGenerator bool
 // from an SLO.
 const MetadataRecordingRulesGenerator = metadataRecordingRulesGenerator(false)
 
-func (m metadataRecordingRulesGenerator) GenerateMetadataRecordingRules(ctx context.Context, info info.Info, slo SLO, alerts alert.MWMBAlertGroup) ([]rulefmt.Rule, error) {
+func (m metadataRecordingRulesGenerator) GenerateMetadataRecordingRules(_ context.Context, info info.Info, slo SLO, alerts alert.MWMBAlertGroup) ([]rulefmt.Rule, error) {
 	labels := mergeLabels(slo.GetSLOIDPromLabels(), slo.Labels)
 
 	// Metatada Recordings.

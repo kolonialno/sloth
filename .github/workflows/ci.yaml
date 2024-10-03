@@ -6,11 +6,16 @@ jobs:
   check:
     name: Check
     runs-on: ubuntu-latest
-    # Execute the checks inside the container instead the VM.
-    container: golangci/golangci-lint:v1.50.0-alpine
+    # TODO: Consider moving this to a separate job to prevent parallel execution
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/check/check.sh
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.60
 
   unit-test:
     name: Unit test

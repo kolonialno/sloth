@@ -8,8 +8,8 @@ require (
 	github.com/oklog/run v1.1.0
 	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.61.1
 	github.com/prometheus-operator/prometheus-operator/pkg/client v0.61.1
-	github.com/prometheus/client_golang v1.20.2
-	github.com/prometheus/common v0.55.0
+	github.com/prometheus/client_golang v1.20.4
+	github.com/prometheus/common v0.60.0
 	github.com/prometheus/prometheus v0.40.3
 	github.com/sirupsen/logrus v1.9.3
 	github.com/slok/reload v0.2.0
